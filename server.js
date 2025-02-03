@@ -1,13 +1,37 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const http = require("http");
+const { Server } = require("socket.io");
 
 const app = express();
+const server = http.createServer(app);
+
+const io = new Server(server, {
+    cors: {
+        origin: "http://localhost:3000", // Adjust based on your frontend URL
+        methods: ["GET", "POST"]
+    }
+});
+
 app.use(express.json());
 app.use(cors());
 
 app.use("/api/auth", require("./routes/authroute"));
 app.use("/api/posts", require("./routes/postroute"));
+app.use("/api/chat", require("./routes/chatroute"));
+
+io.on("connection", (socket) => {
+    console.log("New user connected:", socket.id);
+
+    socket.on("sendMessage", (data) => {
+        io.emit("receiveMessage", data);
+    });
+
+    socket.on("disconnect", () => {
+        console.log("User disconnected:", socket.id);
+    });
+});
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
