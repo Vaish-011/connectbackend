@@ -3,9 +3,11 @@ const express = require("express");
 const cors = require("cors");
 const http = require("http");
 const { Server } = require("socket.io");
+const path = require('path'); 
 
 const app = express();
 const server = http.createServer(app);
+app.use('/uploads', express.static(path.join( __dirname, 'uploads')));
 
 const io = new Server(server, {
     cors: {
