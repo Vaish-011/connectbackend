@@ -4,9 +4,10 @@ const router = express.Router();
 
 router.post("/task" , (req, res) => {
     const {task_name , task_date , task_time , remainder,client_id} = req.body;
+    const formattedTaskDate = new Date(task_date).toISOString().slice(0, 19).replace('T', ' ');
     const sql = "INSERT INTO tasks (task_name , task_date , task_time , remainder,client_id ) VALUES (? , ? , ? , ?,?)";
 
-    db.query(sql , [task_name , task_date , task_time , remainder, client_id] , (err , result) => {
+    db.query(sql , [task_name , formattedTaskDate , task_time , remainder, client_id] , (err , result) => {
         if(err){
             console.error("There is a error to inserting the tasks : " , err);
             return res.status(500).json({error: "Database error"});
@@ -30,8 +31,10 @@ router.put("/task/:task_id" , (req , res) => {
     const {task_name , task_date , task_time , remainder} = req.body;
     const {task_id} = req.params;
 
+    const formattedTaskDate = new Date(task_date).toISOString().slice(0, 19).replace('T', ' ');
+
     const sql = "UPDATE tasks SET task_name = ? , task_date = ? , task_time = ? , remainder = ? WHERE task_id = ? ";
-    db.query(sql , [task_name , task_date , task_time , remainder , task_id] , (err , result) => {
+    db.query(sql , [task_name , formattedTaskDate , task_time , remainder , task_id] , (err , result) => {
         if(err){
             console.error("There is a error in updating the tasks : " , err);
             return res.status(500).json({error : "Database Error : "});
