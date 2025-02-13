@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../config/db"); // Import your MySQL connection
+const db = require("../config/db"); // Import MySQL connection
 
 // ✅ Submit feedback
 router.post("/feed", (req, res) => {
@@ -20,7 +20,7 @@ router.post("/feed", (req, res) => {
   });
 });
 
-// ✅ Get all feedback with user details
+// ✅ Get all feedback (with user details)
 router.get("/feed", (req, res) => {
   const sql = `
     SELECT feedbacks.id, feedbacks.rating, feedbacks.message, feedbacks.createdAt,
@@ -29,11 +29,13 @@ router.get("/feed", (req, res) => {
     JOIN users ON feedbacks.userId = users.id
     ORDER BY feedbacks.createdAt DESC;
   `;
+
   db.query(sql, (err, results) => {
     if (err) {
       console.error("Error fetching feedback: ", err);
       return res.status(500).json({ error: "Database error" });
     }
+    console.log("✅ Feedback Data:", results);  // Debugging output
     res.json(results);
   });
 });
@@ -43,10 +45,10 @@ router.get("/feedback/:userId", (req, res) => {
   const { userId } = req.params;
 
   const sql = `
-    SELECT feedbacks.id, feedbacks.rating, feedbacks.message, feedbacks.createdAt
-    FROM feedbacks
-    WHERE feedbacks.userId = ? 
-    ORDER BY feedbacks.createdAt DESC;
+    SELECT id, rating, message, createdAt 
+    FROM feedbacks 
+    WHERE userId = ? 
+    ORDER BY createdAt DESC;
   `;
 
   db.query(sql, [userId], (err, results) => {
