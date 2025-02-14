@@ -26,6 +26,7 @@ app.use("/api/connectionroute", require("./routes/connect"));
 app.use("/api/resume",require('./routes/resumeRoutes'));
 app.use("/api/tasks",require('./routes/taskroute'));
 app.use("/api/feedback",require('./routes/feedbackroute'));
+app.use("/api/resume", require("./routes/resumeRoutes"));
 
 io.on("connection", (socket) => {
     console.log("New user connected:", socket.id);
