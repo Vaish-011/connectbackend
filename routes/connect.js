@@ -54,4 +54,45 @@ router.put("/connections/:connectionId/reject", (req, res) => {
     );
 });
 
+
+// Get Pending Connection Requests
+router.get("/pending/:userId", (req, res) => {
+    const { userId } = req.params;
+    db.query(
+        `SELECT c.id, u.name 
+         FROM connections c 
+         JOIN users u ON u.id = c.sender_id 
+         WHERE c.receiver_id = ? AND c.status = 'pending'`,
+        [userId],
+        (err, results) => {
+            if (err) return res.status(500).json(err);
+            res.json(results);
+        }
+    );
+});
+
+
+// Fetch suggested users for a given user
+router.get("/suggested/:userId", (req, res) => {
+    const { userId } = req.params;
+
+    const query = 
+        `SELECT u.id, u.name 
+        FROM users u
+        WHERE u.id <> ? 
+        AND u.id NOT IN (
+            SELECT receiver_id FROM connections WHERE sender_id = ? 
+            UNION 
+            SELECT sender_id FROM connections WHERE receiver_id = ?
+        )
+        ORDER BY RAND() 
+        LIMIT 5;
+    ;`
+
+    db.query(query, [userId, userId, userId], (err, results) => {
+        if (err) return res.status(500).json(err);
+        res.json(results);
+    });
+});
+
 module.exports = router;
