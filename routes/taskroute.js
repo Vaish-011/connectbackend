@@ -2,6 +2,7 @@ const express = require("express");
 const db = require("../config/db");
 const router = express.Router();
 
+// for create a new task 
 router.post("/task" , (req, res) => {
     const {task_name , task_date , task_time , remainder,client_id} = req.body;
 
@@ -37,6 +38,9 @@ router.get("/task/:client_id", (req, res) => {
 
 router.get("/task/pending/:client_id", (req, res) => {
     const { client_id } = req.params;
+    if (!client_id) {
+        return res.status(400).json({ error: "Client ID is required" });
+    }
     const sql = "SELECT * FROM tasks WHERE status = 'pending' AND client_id = ?";
     db.query(sql,  [client_id] , (err, results) => {
       if (err) {
@@ -61,7 +65,8 @@ router.get("/task/pending/:client_id", (req, res) => {
       res.json(results);
     });
   });
-
+  
+  // modify the tasks status
   router.put("/task/complete/:task_id", (req, res) => {
     const { task_id } = req.params;
     const { client_id } = req.body;
@@ -86,6 +91,9 @@ router.get("/task/pending/:client_id", (req, res) => {
 
 router.get("/task/today/:client_id", (req, res) => {
     const { client_id } = req.params;
+    if (!client_id) {
+        return res.status(400).json({ error: "Client ID is required" });
+    }
     const sql = `SELECT * FROM tasks WHERE DATE(CONVERT_TZ(task_date, '+00:00', '+05:30')) = CURDATE() AND client_id = ?`;
 
     db.query(sql, [client_id], (err, results) => {
@@ -100,6 +108,10 @@ router.get("/task/today/:client_id", (req, res) => {
 
 router.get("/task/upcoming/:client_id", (req, res) => {
     const { client_id } = req.params;
+
+    if (!client_id) {
+        return res.status(400).json({ error: "Client ID is required" });
+    }
     const sql = "SELECT * FROM tasks WHERE DATE(CONVERT_TZ(task_date, '+00:00', '+05:30')) > CURDATE() AND client_id = ? ORDER BY task_date ASC";
 
     db.query(sql, [client_id], (err, results) => {
@@ -112,6 +124,7 @@ router.get("/task/upcoming/:client_id", (req, res) => {
     });
 });
 
+// edit a task 
 
 router.put("/task/:task_id" , (req , res) => {
     const {task_name , task_date , task_time , remainder , client_id} = req.body;
@@ -158,6 +171,7 @@ router.delete("/task/:task_id" , (req,res) => {
     })
 })
 
+// task notification part 
 
 router.get("/task/notifications/:client_id", (req, res) => {
     const { client_id } = req.params;

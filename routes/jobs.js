@@ -20,6 +20,7 @@ router.post("/add", (req, res) => {
     }
 
     const sql = "INSERT INTO jobs (title, company, location, skills, experience, salary, employment_type, description, apply_link , user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
+
     db.query(sql, [title, company, location, skills, experience, salary, employment_type, description, apply_link , user_id], (err, result) => {
         if (err) {
             console.error("Database Error:", err.code, "-", err.message);
@@ -45,6 +46,7 @@ router.put("/update/:id", (req, res) => {
     const { title, company, location, skills, experience, salary, employment_type, description, apply_link } = req.body;
 
     const sql = "UPDATE jobs SET title=?, company=?, location=?, skills=?, experience=?, salary=?, employment_type=?, description=?, apply_link=? WHERE id=?";
+    
     db.query(sql, [title, company, location, skills, experience, salary, employment_type, description, apply_link, id], (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: "Job updated successfully!" });
