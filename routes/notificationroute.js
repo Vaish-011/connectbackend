@@ -2,51 +2,10 @@ const express = require("express");
 const router = express.Router();
 const db = require("../config/db");
 
-// Pass `io` instance to use Socket.IO in routes
-// module.exports = (io) => {
-//   };
 
 
-   // ✅ Add a new notification and emit it via Socket.IO
-   router.post("/notification", (req, res) => {
-    const { userId, message, type } = req.body;
 
-    if (!userId || !message || !type) {
-      return res.status(400).json({ error: "User ID, message, and type are required" });
-    }
-
-    const sql = "INSERT INTO notifications (userId, message, type) VALUES (?, ?, ?)";
-    db.query(sql, [userId, message, type], (err, result) => {
-      if (err) {
-        console.error("Error inserting notification: ", err);
-        return res.status(500).json({ error: "Database error" });
-      }
-
-      // const newNotification = { id: result.insertId, userId, message, type, createdAt: new Date(), is_read: false };
-
-      // // Emit new notification event to frontend
-      // io.emit(`notification:${userId}`, newNotification);
-
-      res.json({ message: "Notification added successfully", id: result.insertId });
-    });
-  });
-
-  // ✅ Get notifications for a user
-  router.get("/notifications/:userId", (req, res) => {
-    const { userId } = req.params;
-
-    const sql = `SELECT id, message, type, createdAt, is_read FROM notifications WHERE userId = ? ORDER BY createdAt DESC`;
-    
-    db.query(sql, [userId], (err, results) => {
-      if (err) {
-        console.error("Error fetching notifications: ", err);
-        return res.status(500).json({ error: "Database error" });
-      }
-      res.json(results);
-    });
-  });
-
-  // ✅ Mark a notification as read
+// ✅ Mark a notification as read
   router.put("/notifications/:id/read", (req, res) => {
     const { id } = req.params;
 
@@ -60,7 +19,111 @@ const db = require("../config/db");
     });
   });
 
-  // return router;
-// };
+
+
+// ✅ Get pending connection requests as notifications
+router.get("/notifications/:userId/pending", (req, res) => {
+  const { userId } = req.params;
+
+  const sql = `
+      SELECT c.id AS connectionId, u.name AS senderName 
+      FROM connections c 
+      JOIN users u ON u.id = c.sender_id 
+      WHERE c.receiver_id = ? AND c.status = 'pending'
+  `;
+
+  db.query(sql, [userId], (err, results) => {
+      if (err) {
+          console.error("Error fetching pending connections: ", err);
+          return res.status(500).json({ error: "Database error" });
+      }
+
+      // Format as notifications
+      const notifications = results.map(request => ({
+          id: request.connectionId,
+          message: `${request.senderName} sent you a connection request.`,
+          type: "connection_request",
+          is_read: false,
+          createdAt: request.createdAt// Use actual timestamp
+          
+      }));
+
+      res.json(notifications);
+  });
+});
+
+//accepted
+router.get("/notifications/:userId/accepted", (req, res) => {
+  const { userId } = req.params;
+
+  const sql = `
+      SELECT c.id AS connectionId, u.name AS receiverName 
+      FROM connections c 
+      JOIN users u ON u.id = c.receiver_id 
+      WHERE c.sender_id = ? AND c.status = 'accepted'
+  `;
+
+  db.query(sql, [userId], (err, results) => {
+      if (err) {
+          console.error("Error fetching accepted connections: ", err);
+          return res.status(500).json({ error: "Database error" });
+      }
+
+      // Format as notifications
+      const notifications = results.map(request => ({
+          id: request.connectionId,
+          message: `${request.receiverName} accepted your connection request.`,
+          type: "connection_accepted",
+          is_read: false,
+          createdAt: request.createdAt
+      }));
+
+      res.json(notifications);
+  });
+});
+
+
+
+router.get("/notifications/:userId/posts", (req, res) => {
+  const { userId } = req.params;
+
+  const sql = `
+      SELECT n.id, n.message, n.createdAt, 
+             u.name AS creator_name
+      FROM notifications n
+      LEFT JOIN users u 
+      ON u.id = SUBSTRING_INDEX(n.message, 'user ', -1) 
+      WHERE n.userId = ? AND n.type = 'post_update'
+      ORDER BY n.createdAt DESC
+  `;
+
+  db.query(sql, [userId], (err, results) => {
+      if (err) {
+          return res.status(500).json({ error: err.message });
+      }
+
+      // Format notifications with the extracted username
+      const notifications = results.map(notification => {
+          let updatedMessage = notification.message;
+
+          // Replace "user <id>" with the actual name
+          if (notification.creator_name) {
+              updatedMessage = updatedMessage.replace(/user \d+/, notification.creator_name);
+          }
+
+          return {
+              id: notification.id,
+              message: updatedMessage,
+              type: "post_update",
+              is_read: false,
+              createdAt: notification.createdAt
+          };
+      });
+
+      res.status(200).json(notifications);
+  });
+});
+
+
 
 module.exports = router;
