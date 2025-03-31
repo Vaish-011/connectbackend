@@ -29,9 +29,9 @@ app.use("/api/feedback",require('./routes/feedbackroute'));
 app.use("/api/resume", require("./routes/resumeRoutes"));
 app.use('/api/user',require("./routes/userprofile"));
 app.use("/api/notifications", require("./routes/notificationroute")); 
-app.use("/api/bookmark", require("./routes/bookmarkRoute"));
 app.use("/api/jobs" , require("./routes/jobs"));
 app.use("/api/application" , require("./routes/application"))
+
 io.on("connection", (socket) => {
     console.log("New user connected:", socket.id);
 
