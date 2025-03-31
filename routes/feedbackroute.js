@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../config/db"); // Import MySQL connection
 
-// ✅ Submit feedback
+//  Submit feedback
 router.post("/feed", (req, res) => {
   const { userId, rating, message } = req.body;
 
@@ -20,7 +20,7 @@ router.post("/feed", (req, res) => {
   });
 });
 
-// ✅ Get all feedback (with user details)
+//  Get all feedback (with user details)
 router.get("/feed", (req, res) => {
   const sql = `
     SELECT feedbacks.id, feedbacks.rating, feedbacks.message, feedbacks.createdAt,
@@ -35,12 +35,13 @@ router.get("/feed", (req, res) => {
       console.error("Error fetching feedback: ", err);
       return res.status(500).json({ error: "Database error" });
     }
-    console.log("✅ Feedback Data:", results);  // Debugging output
+    console.log(" Feedback Data:", results);  // Debugging output
     res.json(results);
   });
 });
 
-// ✅ Get feedback for a specific user
+
+//  Get feedback for a specific user
 router.get("/feedback/:userId", (req, res) => {
   const { userId } = req.params;
 
@@ -60,7 +61,7 @@ router.get("/feedback/:userId", (req, res) => {
   });
 });
 
-// ✅ Delete feedback by ID
+// Delete feedback by ID
 router.delete("/feedback/:id", (req, res) => {
   const { id } = req.params;
 

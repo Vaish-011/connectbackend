@@ -5,7 +5,7 @@ const db = require("../config/db");
 
 
 
-// ✅ Mark a notification as read
+// Mark a notification as read
   router.put("/notifications/:id/read", (req, res) => {
     const { id } = req.params;
 
@@ -21,7 +21,7 @@ const db = require("../config/db");
 
 
 
-// ✅ Get pending connection requests as notifications
+//  Get pending connection requests as notifications
 router.get("/notifications/:userId/pending", (req, res) => {
   const { userId } = req.params;
 
@@ -83,7 +83,7 @@ router.get("/notifications/:userId/accepted", (req, res) => {
 });
 
 
-
+//for posts
 router.get("/notifications/:userId/posts", (req, res) => {
   const { userId } = req.params;
 
