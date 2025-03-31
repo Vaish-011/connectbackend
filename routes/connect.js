@@ -85,8 +85,7 @@ router.get("/suggested/:userId", (req, res) => {
             UNION 
             SELECT sender_id FROM connections WHERE receiver_id = ?
         )
-        ORDER BY RAND() 
-        LIMIT 5;
+        ORDER BY RAND();
     ;`
 
     db.query(query, [userId, userId, userId], (err, results) => {
