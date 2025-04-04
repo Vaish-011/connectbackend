@@ -1,8 +1,11 @@
+// importing the required modules........
+
 const express = require("express");
 const db = require("../config/db");
 
 const router = express.Router();
 
+// posting a new job.........
 
 router.post("/add", (req, res) => {
     console.log("Incoming request:", req.body); 
@@ -13,6 +16,8 @@ router.post("/add", (req, res) => {
     // if (!user_id || !title || !company || !location || !skills || !experience || !salary || !employment_type || !description || !apply_link )  {
     //     return res.status(400).json({ error: "All fields are required!" });
     // }
+    
+    // employment type is one of these three......
 
     const validEmploymentTypes = ["Full-time", "Part-time", "Contract"];
     if (!validEmploymentTypes.includes(employment_type)) {
@@ -34,12 +39,16 @@ router.post("/add", (req, res) => {
 });
 
 
+// getting all the posted jobs........
+
 router.get("/", (req, res) => {
     db.query("SELECT * FROM jobs", (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(result);
     });
 });
+
+// updating a job ........
 
 router.put("/update/:id", (req, res) => {
     const { id } = req.params;
@@ -53,6 +62,7 @@ router.put("/update/:id", (req, res) => {
     });
 });
 
+// deleting  jobs........
 
 router.delete("/delete/:id", (req, res) => {
     const { id } = req.params;

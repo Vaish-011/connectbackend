@@ -25,6 +25,8 @@ router.post("/task" , (req, res) => {
     });
 });
 
+// get all tasks of a particular client......
+
 router.get("/task/:client_id", (req, res) => {
     const { client_id } = req.params;
     const sql = "SELECT * FROM tasks WHERE client_id = ?";
@@ -37,6 +39,8 @@ router.get("/task/:client_id", (req, res) => {
         res.json(results);
     });
 });
+
+// getting pending tasks for the specific client........
 
 router.get("/task/pending/:client_id", (req, res) => {
     const { client_id } = req.params;
@@ -52,6 +56,8 @@ router.get("/task/pending/:client_id", (req, res) => {
       res.json(results);
     });
   });
+
+  // getting the completed tasks for the particular client.....
 
   router.get("/task/completed/:client_id", (req, res) => {
     const { client_id } = req.params;
@@ -91,6 +97,8 @@ router.get("/task/pending/:client_id", (req, res) => {
   });
 
 
+// getting todays tasks for a specific client
+
 router.get("/task/today/:client_id", (req, res) => {
     const { client_id } = req.params;
     if (!client_id) {
@@ -107,6 +115,7 @@ router.get("/task/today/:client_id", (req, res) => {
     });
 });
 
+// getting the upcoming tasks for specific client.....
 
 router.get("/task/upcoming/:client_id", (req, res) => {
     const { client_id } = req.params;
@@ -150,6 +159,8 @@ router.put("/task/:task_id" , (req , res) => {
         res.json({message: "Tasks Updated Successfully!!"});
     })
 })
+
+// deleting a tasks.....
 
 router.delete("/task/:task_id" , (req,res) => {
     const {task_id} = req.params;

@@ -2,8 +2,8 @@ const express = require("express");
 const db = require("../config/db");
 const multer = require("multer");
 const path = require("path");
-const { route } = require("./jobs");
-const { error } = require("console");
+// const { route } = require("./jobs");
+// const { error } = require("console");
 
 const router = express.Router();
 
@@ -36,11 +36,13 @@ router.post("/apply" , upload.fields([{name: "resume" , maxCount: 1} , {name: "c
 
 router.get("/job/:jobId" , (req , res) => {
     const {jobId} = req.params;
+    
+    if (!req.user || !req.user.id) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
 
     const userId = req.user.id;
-    if(!userId){
-        return res.status(401).json({error: "Unauthorized"});
-    }
+    
 
     const sql = `select applicatons.* , users.name as applicant_name ,
     jobs.company as company_name,
@@ -50,7 +52,7 @@ router.get("/job/:jobId" , (req , res) => {
     join jobs on applications.job_id = jobs.id
     where applications.job_id = ? and jobs.user_id = ?`;
 
-    db.query(sql , [jobId] , (err , result) => {
+    db.query(sql , [jobId , userId] , (err , result) => {
         if(err) {
             console.error("Databasse Error:" , err);
             return res.status(500).json({error: "Failed to fetch applications"});
