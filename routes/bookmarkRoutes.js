@@ -23,7 +23,7 @@ router.post('/', async (req, res) => {
 });
 
 // GET: Check if a post is bookmarked by user
-router.get('/:userId/:postId', async (req, res) => {
+router.get('/check/:userId/:postId', async (req, res) => {
   const { userId, postId } = req.params;
 
   try {
