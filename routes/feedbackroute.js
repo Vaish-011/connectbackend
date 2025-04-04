@@ -34,8 +34,7 @@ router.get("/feed", (req, res) => {
     if (err) {
       console.error("Error fetching feedback: ", err);
       return res.status(500).json({ error: "Database error" });
-    }
-    console.log(" Feedback Data:", results);  // Debugging output
+    }  // Debugging output
     res.json(results);
   });
 });
