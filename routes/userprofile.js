@@ -40,7 +40,7 @@ router.put('/update-profile-photo/:userId', upload.single('profile_photo'), (req
         }
 
         res.json({ message: "Profile photo updated successfully", profile_photo: profilePhotoPath });
-    });
+    }); 
 });
 
 router.get('/get-profile-photo/:userId', (req, res) => {
