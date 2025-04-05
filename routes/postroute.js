@@ -70,7 +70,25 @@ router.get('/post', (req, res) => {
         if (err) return res.status(500).json({ error: err.message });
 
         res.json(result);
+
     });
 });
+
+
+// Fetch Posts by User ID (via route param)
+router.get('/post/user/:userId', (req, res) => {
+    const userId = req.params.userId;
+
+    const sql = `SELECT posts.id, posts.content, posts.createdAt, posts.photo, posts.video, posts.article, posts.event, users.name 
+                 FROM posts JOIN users ON posts.userId = users.id 
+                 WHERE users.id = ? 
+                 ORDER BY posts.createdAt DESC`;
+
+    db.query(sql, [userId], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(result);
+    });
+});
+
 
 module.exports = router;

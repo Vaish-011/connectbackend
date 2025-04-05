@@ -2,6 +2,7 @@ const express = require('express');
 const db = require('../config/db');
 const router = express.Router();
 
+//route1
 // Search users by name
 router.post('/search', (req, res) => {
     const searchQuery = `%${req.body.query.trim()}%`; // Trim spaces and add wildcards for the LIKE query
@@ -27,7 +28,7 @@ router.post('/search', (req, res) => {
 
 
 
-
+//route 2
 // Get chat list for a specific user
 router.get("/getChats/:userId", async (req, res) => {
     const userId = req.params.userId;
@@ -67,7 +68,7 @@ router.get("/getChats/:userId", async (req, res) => {
 
 
 
-
+//route3
 router.post('/addChat', (req, res) => {
     const { user_id, contact_id } = req.body;
 
@@ -112,6 +113,7 @@ router.post('/addChat', (req, res) => {
 
 
 
+//route4
 router.post('/sendMessage', (req, res) => {
     const { chat_id, senderId, recipientId, message } = req.body;
 
@@ -130,6 +132,7 @@ router.post('/sendMessage', (req, res) => {
 });
 
 
+//route5
 router.get('/getMessages/:chatId', (req, res) => {
     const chatId = req.params.chatId;
 
