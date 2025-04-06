@@ -34,6 +34,7 @@ app.use("/api/application" , require("./routes/application"));
 app.use("/api/leaderboard",require("./routes/leaderboardroute"));
 app.use("/api/bookmarks", require ("./routes/bookmarkRoutes"));
 app.use("/api/applicationReview" , require("./routes/applicationreview"))
+app.use("/api/referralRequest", require("./routes/referralRoutes"));
 
 io.on("connection", (socket) => {
     console.log("New user connected:", socket.id);
