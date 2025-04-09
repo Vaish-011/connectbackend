@@ -7,6 +7,7 @@ const path = require("path");
 
 const router = express.Router();
 
+// define where the files upload ......
 const storage = multer.diskStorage({
     destination: "./uploads" , 
     filename: function(req , file , cb){
@@ -18,8 +19,11 @@ const upload = multer({storage: storage});
 
 router.post("/apply" , upload.fields([{name: "resume" , maxCount: 1} , {name: "certifications" , maxCount : 1}]) , (req , res) => {
     console.log("Request Body:", req.body);
+
     const {job_id , applicant_id , full_name , email , phone , linkedin , github , jobTitle , experience , expectedSalary } = req.body;
+
     const resume = req.files.resume ? req.files.resume[0].filename : null;
+
     const certifications = req.files.certifications ? req.files.certifications[0].filename : null;
 
     const sql = "Insert into applications (job_id , applicant_id , full_name , email , phone , linkedin , github , resume , jobTitle , experience , expectedSalary , certifications) values (? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ?)";
@@ -34,6 +38,7 @@ router.post("/apply" , upload.fields([{name: "resume" , maxCount: 1} , {name: "c
     });
 })
 
+// getting the applications for a job 
 router.get("/job/:jobId" , (req , res) => {
     const {jobId} = req.params;
     

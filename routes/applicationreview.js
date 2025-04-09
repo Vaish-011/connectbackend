@@ -13,7 +13,8 @@ router.get("/applicants/:userId", (req, res) => {
           applications.*, 
           users.name AS applicant_name,
           jobs.company AS company_name,
-          jobs.title AS job_title
+          jobs.title AS job_title,
+          jobs.id AS job_id
       FROM applications
       JOIN users ON applications.applicant_id = users.id
       JOIN jobs ON applications.job_id = jobs.id
