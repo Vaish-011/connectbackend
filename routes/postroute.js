@@ -108,4 +108,80 @@ router.delete('/post/:id', (req, res) => {
 
 
 
+router.post('/post/:id/like', (req, res) => {
+    const { userId } = req.body;
+    const postId = req.params.id;
+  
+    if (!userId) return res.status(400).json({ error: "userId is required" });
+  
+    const sql = "INSERT IGNORE INTO likes (userId, postId) VALUES (?, ?)";
+    db.query(sql, [userId, postId], (err) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ message: "Post liked successfully" });
+    });
+  });
+  
+  router.post('/post/:id/comment', (req, res) => {
+    const { userId, content } = req.body;
+    const postId = req.params.id;
+  
+    if (!userId || !content) {
+      return res.status(400).json({ error: "userId and content are required" });
+    }
+  
+    const sql = "INSERT INTO comments (userId, postId, content) VALUES (?, ?, ?)";
+    db.query(sql, [userId, postId, content], (err) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ message: "Comment added successfully" });
+    });
+  });
+  
+  
+
+
+  router.get('/post/:id/stats', (req, res) => {
+    const postId = req.params.id;
+  
+    const likeSQL = "SELECT COUNT(*) AS likes FROM likes WHERE postId = ?";
+    const commentSQL = "SELECT COUNT(*) AS comments FROM comments WHERE postId = ?";
+  
+    const results = {};
+  
+    db.query(likeSQL, [postId], (err, likeResult) => {
+      if (err) return res.status(500).json({ error: err.message });
+  
+      results.likes = likeResult[0].likes;
+  
+      db.query(commentSQL, [postId], (err, commentResult) => {
+        if (err) return res.status(500).json({ error: err.message });
+  
+        results.comments = commentResult[0].comments;
+  
+        res.json(results);
+      });
+    });
+  });
+  
+
+  router.get('/comments/:postId', (req, res) => {
+    const postId = req.params.postId;
+    const sql = `SELECT comments.*, users.name as userName 
+                 FROM comments 
+                 JOIN users ON comments.userId = users.id 
+                 WHERE postId = ? 
+                 ORDER BY comments.createdAt DESC`;
+  
+    db.query(sql, [postId], (err, result) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(result);
+    });
+  });
+  
+  
+
+
+
+
+
+
 module.exports = router;
