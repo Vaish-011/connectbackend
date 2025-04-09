@@ -90,5 +90,22 @@ router.get('/post/user/:userId', (req, res) => {
     });
 });
 
+// Delete a post by ID
+router.delete('/post/:id', (req, res) => {
+    const postId = req.params.id;
+
+    const sql = 'DELETE FROM posts WHERE id = ?';
+    db.query(sql, [postId], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+
+        res.json({ message: 'Post deleted successfully' });
+    });
+});
+
+
 
 module.exports = router;

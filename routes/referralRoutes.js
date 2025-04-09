@@ -35,4 +35,33 @@ router.post("/request", upload.single("resume"), (req, res) => {
     });
 });
 
+
+// Accept a referral request by user_id and job_id
+router.put("/accept", (req, res) => {
+    const { user_id, job_id } = req.body;
+
+    if (!user_id || !job_id) {
+        return res.status(400).json({ error: "Both user_id and job_id are required." });
+    }
+
+    const sql = `
+        UPDATE referral_requests
+        SET status = 'Accepted'
+        WHERE user_id = ? AND job_id = ? AND status != 'Accepted'
+    `;
+
+    db.query(sql, [user_id, job_id], (err, result) => {
+        if (err) {
+            console.error("Database Update Error:", err);
+            return res.status(500).json({ error: "Failed to update referral request status." });
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: "Referral request not found or already accepted." });
+        }
+
+        res.json({ message: "Referral request accepted successfully!" });
+    });
+});
+
 module.exports = router;
