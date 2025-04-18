@@ -6,7 +6,7 @@ const router = express.Router();
 
 // for create a new task 
 router.post("/task" , (req, res) => {
-    const {task_name , task_date , task_time , remainder,client_id} = req.body;
+    const {task_name , task_date , task_time ,client_id} = req.body;
 
     if (!client_id) {
         return res.status(400).json({ error: "Client ID is required" });
@@ -14,9 +14,9 @@ router.post("/task" , (req, res) => {
     const utcDate = new Date(task_date); 
     const formattedTaskDate = utcDate.toISOString().split('T')[0]; // YYYY-MM-DD
 
-    const sql = "INSERT INTO tasks (task_name , task_date , task_time , remainder,client_id , status) VALUES (? , ? , ? , ?, ? , 'pending')";
+    const sql = "INSERT INTO tasks (task_name , task_date , task_time ,client_id , status) VALUES (? , ? , ? , ? , 'pending')";
 
-    db.query(sql , [task_name , formattedTaskDate , task_time , remainder, client_id] , (err , result) => {
+    db.query(sql , [task_name , formattedTaskDate , task_time , client_id] , (err , result) => {
         if(err){
             console.error("There is a error to inserting the tasks : " , err);
             return res.status(500).json({error: "Database error"});
@@ -138,7 +138,7 @@ router.get("/task/upcoming/:client_id", (req, res) => {
 // edit a task 
 
 router.put("/task/:task_id" , (req , res) => {
-    const {task_name , task_date , task_time , remainder , client_id} = req.body;
+    const {task_name , task_date , task_time , client_id} = req.body;
     const {task_id} = req.params;
 
     if (!client_id) {
@@ -147,8 +147,8 @@ router.put("/task/:task_id" , (req , res) => {
 
     const formattedTaskDate = new Date(task_date).toISOString().split('T')[0];
 
-    const sql = `UPDATE tasks SET task_name = ? , task_date = ? , task_time = ? , remainder = ? WHERE task_id = ? AND client_id = ?`;
-    db.query(sql , [task_name , formattedTaskDate , task_time , remainder , task_id , client_id] , (err , result) => {
+    const sql = `UPDATE tasks SET task_name = ? , task_date = ? , task_time = ?  WHERE task_id = ? AND client_id = ?`;
+    db.query(sql , [task_name , formattedTaskDate , task_time ,  task_id , client_id] , (err , result) => {
         if(err){
             console.error("There is a error in updating the tasks : " , err);
             return res.status(500).json({error : "Database Error : "});
