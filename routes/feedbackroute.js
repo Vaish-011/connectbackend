@@ -40,38 +40,4 @@ router.get("/feed", (req, res) => {
 });
 
 
-//  Get feedback for a specific user
-router.get("/feedback/:userId", (req, res) => {
-  const { userId } = req.params;
-
-  const sql = `
-    SELECT id, rating, message, createdAt 
-    FROM feedbacks 
-    WHERE userId = ? 
-    ORDER BY createdAt DESC;
-  `;
-
-  db.query(sql, [userId], (err, results) => {
-    if (err) {
-      console.error("Error fetching user feedback: ", err);
-      return res.status(500).json({ error: "Database error" });
-    }
-    res.json(results);
-  });
-});
-
-// Delete feedback by ID
-router.delete("/feedback/:id", (req, res) => {
-  const { id } = req.params;
-
-  const sql = "DELETE FROM feedbacks WHERE id = ?";
-  db.query(sql, [id], (err, result) => {
-    if (err) {
-      console.error("Error deleting feedback: ", err);
-      return res.status(500).json({ error: "Database error" });
-    }
-    res.json({ message: "Feedback deleted successfully" });
-  });
-});
-
 module.exports = router;

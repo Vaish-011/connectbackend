@@ -5,22 +5,6 @@ const db = require("../config/db");
 
 
 
-// Mark a notification as read
-  router.put("/notifications/:id/read", (req, res) => {
-    const { id } = req.params;
-
-    const sql = "UPDATE notifications SET is_read = TRUE WHERE id = ?";
-    db.query(sql, [id], (err) => {
-      if (err) {
-        console.error("Error updating notification status: ", err);
-        return res.status(500).json({ error: "Database error" });
-      }
-      res.json({ message: "Notification marked as read" });
-    });
-  });
-
-
-
 //  Get pending connection requests as notifications
 router.get("/notifications/:userId/pending", (req, res) => {
   const { userId } = req.params;
@@ -43,7 +27,7 @@ router.get("/notifications/:userId/pending", (req, res) => {
           id: request.connectionId,
           message: `${request.senderName} sent you a connection request.`,
           type: "connection_request",
-          is_read: false,
+        
           createdAt: request.createdAt// Use actual timestamp
           
       }));
@@ -74,7 +58,6 @@ router.get("/notifications/:userId/accepted", (req, res) => {
           id: request.connectionId,
           message: `${request.receiverName} accepted your connection request.`,
           type: "connection_accepted",
-          is_read: false,
           createdAt: request.createdAt
       }));
 
@@ -115,7 +98,6 @@ router.get("/notifications/:userId/posts", (req, res) => {
               id: notification.id,
               message: updatedMessage,
               type: "post_update",
-              is_read: false,
               createdAt: notification.createdAt
           };
       });
