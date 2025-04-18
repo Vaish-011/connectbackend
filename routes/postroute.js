@@ -109,18 +109,34 @@ router.delete('/post/:id', (req, res) => {
 
 
 router.post('/post/:id/like', (req, res) => {
-    const { userId } = req.body;
-    const postId = req.params.id;
-  
-    if (!userId) return res.status(400).json({ error: "userId is required" });
-  
-    const sql = "INSERT IGNORE INTO likes (userId, postId) VALUES (?, ?)";
-    db.query(sql, [userId, postId], (err) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ message: "Post liked successfully" });
-    });
+  const { userId } = req.body;
+  const postId = req.params.id;
+
+  if (!userId) return res.status(400).json({ error: "userId is required" });
+
+  const checkSQL = "SELECT * FROM likes WHERE userId = ? AND postId = ?";
+
+  db.query(checkSQL, [userId, postId], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+
+    if (results.length > 0) {
+      // User already liked the post, so unlike (delete it)
+      const deleteSQL = "DELETE FROM likes WHERE userId = ? AND postId = ?";
+      db.query(deleteSQL, [userId, postId], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Post unliked successfully" });
+      });
+    } else {
+      // Like the post
+      const insertSQL = "INSERT INTO likes (userId, postId) VALUES (?, ?)";
+      db.query(insertSQL, [userId, postId], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Post liked successfully" });
+      });
+    }
   });
-  
+});
+
   router.post('/post/:id/comment', (req, res) => {
     const { userId, content } = req.body;
     const postId = req.params.id;
@@ -138,12 +154,13 @@ router.post('/post/:id/like', (req, res) => {
   
   
 
-
   router.get('/post/:id/stats', (req, res) => {
     const postId = req.params.id;
+    const userId = req.query.userId; // Pass this from frontend
   
     const likeSQL = "SELECT COUNT(*) AS likes FROM likes WHERE postId = ?";
     const commentSQL = "SELECT COUNT(*) AS comments FROM comments WHERE postId = ?";
+    const userLikeSQL = "SELECT 1 FROM likes WHERE postId = ? AND userId = ?";
   
     const results = {};
   
@@ -157,12 +174,18 @@ router.post('/post/:id/like', (req, res) => {
   
         results.comments = commentResult[0].comments;
   
-        res.json(results);
+        if (!userId) return res.json(results); // If no user, skip userLike
+  
+        db.query(userLikeSQL, [postId, userId], (err, userLikeResult) => {
+          if (err) return res.status(500).json({ error: err.message });
+  
+          results.userLiked = userLikeResult.length > 0;
+          res.json(results);
+        });
       });
     });
   });
   
-
   router.get('/comments/:postId', (req, res) => {
     const postId = req.params.postId;
     const sql = `SELECT comments.*, users.name as userName 
